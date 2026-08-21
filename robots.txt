@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin.html
 
-Sitemap: https://yulatelier.com/sitemap.xml
+Sitemap: https://www.yulatelier.com/sitemap.xml
