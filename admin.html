@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>율이공방 홈페이지 관리자</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@500;600;700&display=optional" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css?v=26">
+<style>
+  body{ background:var(--bg2); }
+  .admin{ max-width:820px; margin:0 auto; padding:40px 20px 80px; }
+  .panel{ background:var(--paper); border:1px solid var(--line); border-radius:var(--radius-lg);
+          padding:30px 32px 34px; margin-bottom:20px; box-shadow:var(--shadow-sm); }
+  .panel h2{ font-size:20px; margin-bottom:6px; }
+  .panel .quiet{ margin-bottom:20px; }
+  .rows{ display:grid; gap:10px; }
+  .row{ display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+        padding:14px 16px; border:1px solid var(--line); border-radius:12px; background:var(--bg); }
+  .row b{ flex:1; min-width:150px; font-size:15.5px; color:var(--ink); }
+  .row .quiet{ margin:0; flex-basis:100%; font-size:13.5px; }
+  .mini{ padding:9px 16px; font-size:14px; border-radius:99px; border:1.5px solid var(--brand-lt);
+         background:var(--paper); color:var(--brand-dk); font-family:inherit; font-weight:700; cursor:pointer; text-decoration:none; }
+  .mini:hover{ background:var(--brand-pale); }
+  .mini.solid{ background:var(--brand-dk); border-color:var(--brand-dk); color:#fff; }
+  .mini.danger{ border-color:#C08878; color:#8C3E24; }
+  #gate{ max-width:420px; margin:80px auto; }
+  #panelWrap[hidden]{ display:none; }
+  .pin{ font-size:26px; letter-spacing:.5em; text-align:center; }
+  .warn{ padding:18px 20px; border-radius:12px; background:#FBF3E4; border:1px solid #E8D6AE;
+         font-size:14.5px; color:#5A4623; line-height:1.8; }
+  .row .quiet i{ font-style:normal; color:var(--brand); font-weight:700; }
+  /* 사진 목록 */
+  .ig-h{ font-size:15px; margin:22px 0 10px; padding-bottom:7px; color:var(--brand-dk);
+         border-bottom:1px solid var(--line); }
+  .ig{ display:grid; gap:12px; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); }
+  .ig-c{ border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--bg); }
+  .ig-c.on{ border-color:#C9A96A; box-shadow:0 0 0 1px #C9A96A inset; }
+  .ig-c img{ width:100%; height:135px; object-fit:cover; display:block; background:var(--bg2); }
+  .ig-t{ padding:11px 13px 9px; }
+  .ig-t b{ display:block; font-size:14.5px; color:var(--ink); }
+  .ig-t .quiet{ margin:2px 0 0; font-size:12.5px; }
+  .ig-b{ display:inline-block; margin-top:6px; padding:2px 9px; border-radius:99px;
+         background:#C9A96A; color:#3A2C0E; font-size:11.5px; font-weight:700; }
+  .ig-a{ display:flex; gap:7px; padding:0 13px 13px; flex-wrap:wrap; }
+  .ig-a .mini{ padding:7px 13px; font-size:13px; }
+  .ig-a label{ display:inline-flex; align-items:center; }
+</style>
+</head>
+<body>
+<div class="admin">
+
+  <div id="gate" class="panel">
+    <h2>율이공방 홈페이지 관리자</h2>
+    <p class="quiet">비밀번호 네 자리를 입력해 주세요.</p>
+    <div class="field" style="margin-bottom:16px">
+      <input class="pin" id="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="○○○○">
+    </div>
+    <button class="btn btn-primary" style="width:100%" id="btnIn">들어가기</button>
+    <!-- 처음 비밀번호를 화면에 적어 두던 안내는 뺐습니다.
+         주소만 알면 누구나 로그인 화면을 볼 수 있어, 번호를 적어 두면 잠금 의미가 없습니다.
+         처음 비밀번호는 아래 <script> 안의 var PIN 값입니다. -->
+  </div>
+
+  <div id="panelWrap" hidden>
+
+    <div class="panel" id="evtPanel">
+      <h2>이벤트 배너</h2>
+      <p class="quiet">켜 두면 <b>모든 페이지 맨 위</b>에 한 줄 띠로 떠오릅니다.
+        방문자가 ×를 누르면 그 사람 화면에서는 다시 뜨지 않습니다.
+        문구를 고쳐 저장하면 닫았던 사람에게도 <b>새 안내로 다시</b> 보입니다.</p>
+      <div class="form" style="margin-bottom:14px">
+        <div class="field full">
+          <label for="evtText">배너 문구 <span class="req">*</span></label>
+          <input id="evtText" placeholder="예) 9월 힐링데이 예약 접수 중 — 10인 이상 재료비 할인">
+        </div>
+        <div class="field full">
+          <label for="evtLink">누르면 갈 곳 <span class="opt">선택 — 비우면 글자만 보입니다</span></label>
+          <input id="evtLink" placeholder="예) tel:01065550497  또는  index.html#curriculum">
+        </div>
+        <div class="full btn-row">
+          <button class="mini solid" id="evtSave">저장하고 켜기</button>
+          <button class="mini" id="evtOff">끄기</button>
+          <button class="mini danger" id="evtClear">문구 지우기</button>
+        </div>
+      </div>
+      <div class="warn" id="evtState"></div>
+    </div>
+
+    <div class="panel">
+      <h2>글 고치기</h2>
+      <p class="quiet">페이지를 열면 고칠 수 있는 글에 옅은 점선이 생깁니다.
+        <b>글을 눌러 고치고, 저절로 저장</b>됩니다.
+        제목·문단·표 안 글자·자주 묻는 질문까지 거의 모든 글을 고치실 수 있습니다.
+        <b>고친 곳은 노란 테두리</b>로 남아 어디를 손댔는지 한눈에 보입니다.</p>
+      <div class="rows" id="pageRows"></div>
+      <p class="quiet" style="margin:16px 0 0">
+        메뉴·아래쪽 연락처처럼 <b>모든 페이지에 똑같이 들어가는 부분</b>은 여기서 고칠 수 없습니다.
+        그 부분은 알려주시면 파일에서 고쳐 드립니다.</p>
+    </div>
+
+    <div class="panel">
+      <h2>사진 바꾸기</h2>
+      <p class="quiet">홈페이지에 쓰인 <b id="imgTotal">모든</b> 사진을 여기서 바꾸실 수 있습니다.
+        고르시면 자동으로 줄여서 저장합니다. <b>원래 사진과 비슷한 모양</b>(가로로 넓은 사진이면 넓은 사진)으로
+        고르셔야 잘리지 않고 예쁘게 들어갑니다.</p>
+      <div class="btn-row" style="margin-bottom:14px">
+        <input id="imgFind" placeholder="사진 찾기 — 예) 첫 화면, 조향, 강사"
+               style="flex:1;min-width:200px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:15px">
+        <button class="mini" id="imgOnlyChanged">바꾼 것만 보기</button>
+      </div>
+      <div id="imgGroups"></div>
+      <div class="warn" style="margin-top:18px">
+        <b>저장 공간</b> — 사진은 브라우저 안에 담기며 넣을 수 있는 양이 정해져 있습니다.
+        <span id="imgQuota"></span><br>
+        사진을 <b>여러 장 바꾸실 예정이면</b>, <code>assets/img/</code> 폴더에서 같은 이름의 파일을
+        직접 바꿔 넣는 쪽이 가볍고 확실합니다.
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>후기 등록</h2>
+      <p class="quiet">등록하면 메인 <b>「참가자 후기」</b> 자리에 바로 나타납니다.
+        <b>보이기 / 숨기기</b>를 눌러 홈페이지에 내보낼 후기만 고르실 수 있습니다.
+        담당자 후기가 참여자 후기보다 훨씬 힘이 셉니다.</p>
+      <div class="form" style="margin-bottom:16px">
+        <div class="field full">
+          <label for="rvText">후기 내용</label>
+          <textarea id="rvText" placeholder="예) 준비할 게 없어서 편했습니다. 참여자분들 반응도 좋았고요."></textarea>
+        </div>
+        <div class="field full">
+          <label for="rvWho">쓰신 분 <span class="opt">기관명은 익명으로 적으셔도 됩니다</span></label>
+          <input id="rvWho" placeholder="예) ○○복지관 담당자 / 2025년 5월 참여자">
+        </div>
+        <div class="full btn-row">
+          <button class="mini solid" id="rvAdd">후기 추가</button>
+          <button class="mini" id="rvCancel" hidden>고치기 취소</button>
+        </div>
+      </div>
+      <div class="rows" id="rvList"></div>
+      <p class="quiet" id="rvNone" style="margin:8px 0 0">아직 등록한 후기가 없습니다.</p>
+    </div>
+
+    <div class="panel" id="pinPanel">
+      <h2>비밀번호 바꾸기</h2>
+      <p class="quiet">지금 비밀번호는 <b>0497</b>입니다. 나중에 바꾸실 때 여기서 바꾸시면 됩니다.</p>
+      <div class="form" style="margin-bottom:14px">
+        <div class="field">
+          <label for="pinNew">새 비밀번호 <span class="req">*</span></label>
+          <input id="pinNew" type="password" inputmode="numeric" maxlength="4" placeholder="숫자 네 자리">
+        </div>
+        <div class="field">
+          <label for="pinNew2">한 번 더 <span class="req">*</span></label>
+          <input id="pinNew2" type="password" inputmode="numeric" maxlength="4" placeholder="숫자 네 자리">
+        </div>
+        <div class="full btn-row">
+          <button class="mini solid" id="pinSave">바꾸기</button>
+          <button class="mini danger" id="pinReset">처음(0497)으로 되돌리기</button>
+        </div>
+      </div>
+      <div class="warn">
+        바꾼 비밀번호는 <b>이 컴퓨터에만</b> 저장됩니다.
+        다른 컴퓨터에서 들어가시면 처음 비밀번호(0497)가 그대로 쓰입니다.<br>
+        모든 컴퓨터에서 바꾸시려면 <code>admin.html</code> 안의 <code>var PIN = '0497'</code> 을 고쳐서 올려주세요.
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>백업 · 되돌리기</h2>
+      <p class="quiet">고친 내용은 이 컴퓨터의 브라우저에만 저장됩니다. 중요한 수정 뒤에는 백업을 받아두세요.</p>
+      <div class="btn-row">
+        <button class="mini solid" id="btnExport">백업 파일 내려받기</button>
+        <label class="mini" style="display:inline-flex;align-items:center">백업 불러오기
+          <input type="file" id="fileImport" accept="application/json" hidden></label>
+        <button class="mini danger" id="btnReset">전부 처음 상태로</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>꼭 알아두실 것</h2>
+      <div class="warn">
+        · 고친 내용은 <b>이 컴퓨터(이 브라우저)에만</b> 남습니다. 다른 사람 화면에는 보이지 않습니다.<br>
+        · 손님에게 보이게 하려면 고친 내용을 반영해 <b>파일을 다시 올려야</b> 합니다.<br>
+        · 브라우저 기록(캐시)을 지우면 <b>고친 내용이 사라집니다.</b> 백업을 받아두세요.<br>
+        · 비밀번호는 이 파일(<code>admin.html</code>) 안의 <code>PIN</code> 값을 고쳐 바꿀 수 있습니다.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* 아래 두 목록은 build_admin.py 가 홈페이지 파일을 읽어 자동으로 채웁니다.
+   페이지나 사진을 더하고 나면 그 파일을 다시 돌려주세요. 손으로 고치지 마세요. */
+/*DATA_START*/
+var PAGE_LIST = [{"f": "index.html", "name": "메인", "what": "한 페이지 전체 — 첫 화면 · 운영기준 · 강사 · 사례 · 실적 · 프로그램 · 커리큘럼 · 질문", "n": 268}, {"f": "scent.html", "name": "조향", "what": "소개 문단 · 프로그램 표 · 사진 설명", "n": 44}, {"f": "color.html", "name": "컬러테라피", "what": "소개 문단 · 프로그램 표 · 사진 설명", "n": 44}, {"f": "eco.html", "name": "환경수업", "what": "소개 문단 · 프로그램 표 · 사진 설명", "n": 54}, {"f": "tour.html", "name": "관광기념품", "what": "소개 문단 · 프로그램 표 · 기관 안내", "n": 34}];
+var IMG_LIST = [{"k": "hero-video-poster", "src": "assets/img/hero-video-poster.jpg", "label": "첫 화면 배경 (PC)", "on": ["메인 — 첫 화면"]}, {"k": "hero-video-poster-m", "src": "assets/img/hero-video-poster-m.jpg", "label": "첫 화면 배경 (폰)", "on": ["메인 — 첫 화면"]}, {"k": "kang-jieun", "src": "assets/img/kang-jieun.jpg", "label": "대표 강사 프로필 사진", "on": ["메인 — 대표 강사"]}, {"k": "card-color", "src": "assets/img/card-color.jpg", "label": "프로그램 카드 — 컬러테라피", "on": ["메인 — 프로그램 안내 카드"]}, {"k": "card-eco", "src": "assets/img/card-eco.jpg", "label": "프로그램 카드 — 환경수업", "on": ["메인 — 프로그램 안내 카드"]}, {"k": "card-scent", "src": "assets/img/card-scent.jpg", "label": "프로그램 카드 — 조향", "on": ["메인 — 프로그램 안내 카드"]}, {"k": "card-tour", "src": "assets/img/card-tour.jpg", "label": "프로그램 카드 — 관광기념품", "on": ["메인 — 프로그램 안내 카드", "관광기념품 프로그램"]}, {"k": "g-eco-3", "src": "assets/img/g-eco-3.jpg", "label": "완성된 스칸디아모스 화분 두 개", "on": ["메인 — 출강 사례 사진", "환경수업 프로그램"]}, {"k": "p-corp-1", "src": "assets/img/p-corp-1.jpg", "label": "강의실에서 진행한 성인 대상 조향 출강 수업", "on": ["메인 — 출강 사례 사진"]}, {"k": "p-public-2", "src": "assets/img/p-public-2.jpg", "label": "완성된 천연비누를 들어 보이며 설명하는 강사와 참여자들", "on": ["메인 — 출강 사례 사진"]}, {"k": "p-public-3", "src": "assets/img/p-public-3.jpg", "label": "세미나실에서 진행한 공무원연수 컬러아로마 힐링 수업", "on": ["메인 — 출강 사례 사진"]}, {"k": "p-school-1", "src": "assets/img/p-school-1.jpg", "label": "커피박으로 만든 동물 모양 키링이 이름표를 붙인 종이 위에 줄지어 놓여 마르고 ", "on": ["메인 — 출강 사례 사진"]}, {"k": "p-school-2", "src": "assets/img/p-school-2.jpg", "label": "학부모 참여 프로그램으로 진행한 천연 썬로션 만들기", "on": ["메인 — 출강 사례 사진"]}, {"k": "p-school-4", "src": "assets/img/p-school-4.jpg", "label": "중고등학생 대상 천연비누 만들기 수업에서 강사가 옆에서 도와주는 모습", "on": ["메인 — 출강 사례 사진"]}, {"k": "p-school-5", "src": "assets/img/p-school-5.jpg", "label": "초등학교 교실에서 완성한 비누와 키링을 들어 보이는 아이들", "on": ["메인 — 출강 사례 사진"]}, {"k": "p-school-6", "src": "assets/img/p-school-6.jpg", "label": "초등학교 교실에서 재활용 주제 영상을 보고 있는 학생들", "on": ["메인 — 출강 사례 사진"]}, {"k": "p-school-7", "src": "assets/img/p-school-7.jpg", "label": "초등학교 교실에서 친환경 도시락 용기를 들고 함께 사진을 찍은 학생들", "on": ["메인 — 출강 사례 사진"]}, {"k": "p-welfare-1", "src": "assets/img/p-welfare-1.jpg", "label": "복지관 출강 수업을 위해 펼쳐 놓은 천연비누 재료", "on": ["메인 — 출강 사례 사진"]}, {"k": "p-welfare-3", "src": "assets/img/p-welfare-3.jpg", "label": "복지관에서 어르신들이 스칸디아모스 액자를 만드는 모습", "on": ["메인 — 출강 사례 사진"]}, {"k": "teacher-at-work", "src": "assets/img/teacher-at-work.jpg", "label": "교사연수에서 강사가 천연비누액을 몰드에 붓는 시범을 보이는 모습", "on": ["메인 — 출강 사례 사진"]}, {"k": "g-scent-1", "src": "assets/img/g-scent-1.jpg", "label": "참여자가 조향 랙에서 오일을 고르는 손", "on": ["조향 프로그램"]}, {"k": "g-scent-2", "src": "assets/img/g-scent-2.jpg", "label": "출강 전 세팅을 마친 조향 테이블 — 에센셜 오일과 조향 노트", "on": ["조향 프로그램"]}, {"k": "g-scent-3", "src": "assets/img/g-scent-3.jpg", "label": "완성된 아로마 롤온이 줄지어 놓인 모습", "on": ["조향 프로그램"]}, {"k": "g-scent-4", "src": "assets/img/g-scent-4.jpg", "label": "커피 원두와 함께 포장된 시그니처 향수 선물 상자", "on": ["조향 프로그램"]}, {"k": "g-scent-5", "src": "assets/img/g-scent-5.jpg", "label": "유칼립투스와 함께 놓인 롤온 향수", "on": ["조향 프로그램"]}, {"k": "g-scent-6", "src": "assets/img/g-scent-6.jpg", "label": "포장을 마친 시그니처 향수 상자", "on": ["조향 프로그램"]}, {"k": "g-color-1", "src": "assets/img/g-color-1.jpg", "label": "책상 위에 펼쳐진 컬러 카드를 고르는 참여자의 손", "on": ["컬러테라피 프로그램"]}, {"k": "g-color-2", "src": "assets/img/g-color-2.jpg", "label": "컬러 강점 카드와 색연필이 놓인 책상", "on": ["컬러테라피 프로그램"]}, {"k": "g-color-3", "src": "assets/img/g-color-3.jpg", "label": "컬러 카드를 나란히 늘어놓고 이야기를 나누는 장면", "on": ["컬러테라피 프로그램"]}, {"k": "g-color-4", "src": "assets/img/g-color-4.jpg", "label": "강점 카드를 손에 들고 고르는 참여자", "on": ["컬러테라피 프로그램"]}, {"k": "g-color-5", "src": "assets/img/g-color-5.jpg", "label": "참여자가 강점 카드를 골라 정리하는 모습", "on": ["컬러테라피 프로그램"]}, {"k": "g-color-6", "src": "assets/img/g-color-6.jpg", "label": "컬러 활동으로 완성한 참여자의 작업물", "on": ["컬러테라피 프로그램"]}, {"k": "g-eco-1", "src": "assets/img/g-eco-1.jpg", "label": "자연광 아래 놓인 스칸디아모스 해바라기 액자", "on": ["환경수업 프로그램"]}, {"k": "g-eco-10", "src": "assets/img/g-eco-10.jpg", "label": "유칼립투스와 함께 놓인 마시멜로 모양 수제 비누", "on": ["환경수업 프로그램"]}, {"k": "g-eco-11", "src": "assets/img/g-eco-11.jpg", "label": "대리석 무늬로 만든 수제 비누 네 조각", "on": ["환경수업 프로그램"]}, {"k": "g-eco-13", "src": "assets/img/g-eco-13.jpg", "label": "색색의 스칸디아모스를 나무 틀에 채워 넣는 참여자의 손", "on": ["환경수업 프로그램"]}, {"k": "g-eco-2", "src": "assets/img/g-eco-2.jpg", "label": "스칸디아모스로 만든 그네 액자", "on": ["환경수업 프로그램"]}, {"k": "g-eco-4", "src": "assets/img/g-eco-4.jpg", "label": "감귤나무 아래에서 들어 올린 업사이클 키링", "on": ["환경수업 프로그램"]}, {"k": "g-eco-5", "src": "assets/img/g-eco-5.jpg", "label": "양말목으로 짠 바구니에 담긴 감귤", "on": ["환경수업 프로그램"]}, {"k": "g-eco-6", "src": "assets/img/g-eco-6.jpg", "label": "커피박으로 만든 판다 그림 액자", "on": ["환경수업 프로그램"]}, {"k": "g-eco-7", "src": "assets/img/g-eco-7.jpg", "label": "한라산을 층으로 표현한 수제 비누", "on": ["환경수업 프로그램"]}, {"k": "g-eco-8", "src": "assets/img/g-eco-8.jpg", "label": "라벤더 다발과 함께 놓인 천연 비누", "on": ["환경수업 프로그램"]}, {"k": "g-eco-9", "src": "assets/img/g-eco-9.jpg", "label": "천연 재료로 만든 바디워시와 유칼립투스", "on": ["환경수업 프로그램"]}, {"k": "why-hands", "src": "assets/img/why-hands.jpg", "label": "출강 사례 — 향 고르는 손", "on": ["메인 — 출강 사례 사진"]}];
+/*DATA_END*/
+</script>
+<script>
+(function(){
+  var PIN = '0497';           // ← 처음 비밀번호. 모든 컴퓨터에서 바꾸려면 이 값을 고치세요.
+  var gate = document.getElementById('gate');
+  var wrap = document.getElementById('panelWrap');
+
+  // 관리자 페이지에서 바꾼 비밀번호가 있으면 그걸 쓴다
+  function pinNow(){
+    try{ return localStorage.getItem('cms_pin') || PIN; }catch(e){ return PIN; }
+  }
+  // 아직 처음 비밀번호를 쓰는 중일 때만 안내를 보여 준다
+  function pinHint(){
+    // 로그인 화면의 안내는 없앴다. 아직 처음 비밀번호를 쓰는 중이면
+    // 「비밀번호 바꾸기」 칸에만 금색 테두리로 표시해 준다.
+    var still = pinNow() === PIN;
+    var p = document.getElementById('pinPanel');
+    if (p) p.style.outline = still ? '2px solid #C9A96A' : '';
+  }
+  pinHint();
+
+  function open(){ gate.hidden = true; wrap.hidden = false; pinHint(); }
+  function tryIn(){
+    if (document.getElementById('pin').value === pinNow()){
+      try{ sessionStorage.setItem('cms_session','1'); }catch(e){}
+      open();
+    } else {
+      alert('비밀번호가 맞지 않습니다.');
+      document.getElementById('pin').select();
+    }
+  }
+
+  document.getElementById('pinSave').addEventListener('click', function(){
+    var a = document.getElementById('pinNew').value.trim();
+    var b = document.getElementById('pinNew2').value.trim();
+    if (!/^\d{4}$/.test(a)){ alert('숫자 네 자리로 넣어주세요.'); return; }
+    if (a !== b){ alert('두 번 넣은 비밀번호가 다릅니다.'); return; }
+    if (a === PIN){ alert('처음 비밀번호와 같습니다. 다른 숫자로 정해 주세요.'); return; }
+    localStorage.setItem('cms_pin', a);
+    document.getElementById('pinNew').value = '';
+    document.getElementById('pinNew2').value = '';
+    pinHint();
+    alert('비밀번호를 바꿨습니다. 다음부터 새 비밀번호로 들어오세요.');
+  });
+  document.getElementById('pinReset').addEventListener('click', function(){
+    if(!confirm('처음 비밀번호(0497)로 되돌릴까요?')) return;
+    localStorage.removeItem('cms_pin');
+    pinHint();
+    alert('처음 비밀번호로 되돌렸습니다.');
+  });
+  document.getElementById('btnIn').addEventListener('click', tryIn);
+  document.getElementById('pin').addEventListener('keydown', function(e){ if(e.key==='Enter') tryIn(); });
+  // 편집하다가 뒤로 돌아온 경우에는 다시 묻지 않는다
+  try{ if (sessionStorage.getItem('cms_session')==='1') open(); }catch(e){}
+
+  // 페이지 목록은 나중에 그려지므로 문서 전체에서 눌린 것을 받는다
+  document.addEventListener('click', function(e){
+    var b = e.target.closest && e.target.closest('[data-go]');
+    if (!b) return;
+    localStorage.setItem('cms_until', String(Date.now() + 30*60*1000));
+    try{ sessionStorage.setItem('cms_session','1'); }catch(e){}
+    location.href = b.dataset.go + '?edit=1';
+  });
+
+  // ── 글 고치기 — 페이지 목록 ────────────────────
+  (function(){
+    var box = document.getElementById('pageRows');
+    box.innerHTML = PAGE_LIST.map(function(p){
+      return '<div class="row"><b>' + esc(p.name) + '</b>' +
+        '<span class="quiet">' + esc(p.what) + ' <i>· 고칠 수 있는 곳 ' + p.n + '</i></span>' +
+        (hits(p.f) ? '<span class="ig-b">' + hits(p.f) + '곳 고침</span>' : '') +
+        '<button class="mini solid" data-go="' + esc(p.f) + '">열어서 고치기</button></div>';
+    }).join('');
+  })();
+  // 열쇠가 「페이지이름-…」 이라 그 페이지에서 몇 곳을 고쳤는지 셀 수 있다
+  function hits(file){
+    var pre = 'cms_' + file.replace(/\.html$/,'') + '-', n = 0;
+    for (var i=0;i<localStorage.length;i++){
+      if (localStorage.key(i).indexOf(pre) === 0) n++;
+    }
+    return n;
+  }
+
+  // ── 사진 바꾸기 ───────────────────────────────
+  var IK = 'cms_img_';
+  function has(k){ return localStorage.getItem(IK+k) !== null; }
+  function thumbSrc(im){ return localStorage.getItem(IK+im.k) || im.src; }
+
+  function imgDraw(){
+    var q = (document.getElementById('imgFind').value || '').trim().toLowerCase();
+    var onlyCh = document.getElementById('imgOnlyChanged').dataset.on === '1';
+    var groups = {}, order = [];
+    IMG_LIST.forEach(function(im){
+      if (onlyCh && !has(im.k)) return;
+      if (q && (im.label + ' ' + im.on.join(' ') + ' ' + im.k).toLowerCase().indexOf(q) < 0) return;
+      var g = im.on[0] || '그 밖';
+      if (!groups[g]) { groups[g] = []; order.push(g); }
+      groups[g].push(im);
+    });
+    var html = order.map(function(g){
+      return '<h3 class="ig-h">' + esc(g) + '</h3><div class="ig">' + groups[g].map(function(im){
+        var changed = has(im.k);
+        return '<div class="ig-c' + (changed ? ' on' : '') + '">' +
+          '<img src="' + esc(thumbSrc(im)) + '" alt="" loading="lazy">' +
+          '<div class="ig-t"><b>' + esc(im.label) + '</b>' +
+          '<span class="quiet">' + esc(im.on.join(' · ')) + '</span>' +
+          (changed ? '<span class="ig-b">바꾼 사진</span>' : '') + '</div>' +
+          '<div class="ig-a">' +
+          '<label class="mini solid">사진 고르기<input type="file" accept="image/*" data-img="' + esc(im.k) + '" hidden></label>' +
+          (changed ? '<button class="mini danger" data-imgreset="' + esc(im.k) + '">원래대로</button>' : '') +
+          '</div></div>';
+      }).join('') + '</div>';
+    }).join('');
+    document.getElementById('imgGroups').innerHTML =
+      html || '<p class="quiet">찾으시는 사진이 없습니다.</p>';
+    var n = IMG_LIST.filter(function(im){ return has(im.k); }).length;
+    document.getElementById('imgTotal').textContent = IMG_LIST.length + '장의';
+    document.getElementById('imgQuota').textContent =
+      n ? ('지금 ' + n + '장을 바꿔 두셨고, 약 ' + Math.round(used()/1024) + 'KB 를 쓰고 있습니다.')
+        : '아직 바꾼 사진이 없습니다.';
+    bindImg();
+  }
+  function used(){
+    var t = 0;
+    for (var i=0;i<localStorage.length;i++){
+      var k = localStorage.key(i);
+      if (k.indexOf('cms_')===0) t += (localStorage.getItem(k)||'').length;
+    }
+    return t;
+  }
+
+  function bindImg(){
+    document.querySelectorAll('[data-img]').forEach(function(inp){
+      inp.addEventListener('change', function(){
+        var f = inp.files[0]; if(!f) return;
+        var r = new FileReader();
+        r.onload = function(e){
+          var img = new Image();
+          img.onload = function(){
+            // 너무 큰 사진은 저장 공간을 금방 채우므로 긴 쪽 1400까지 줄인다
+            var max=1400, w=img.width, h=img.height;
+            if (Math.max(w,h) > max){ var s=max/Math.max(w,h); w=Math.round(w*s); h=Math.round(h*s); }
+            var c=document.createElement('canvas'); c.width=w; c.height=h;
+            var x=c.getContext('2d');
+            x.fillStyle='#fff'; x.fillRect(0,0,w,h);
+            x.drawImage(img,0,0,w,h);
+            var data = c.toDataURL('image/jpeg', 0.82);
+            try{
+              localStorage.setItem(IK+inp.dataset.img, data);
+              imgDraw();
+              alert('사진을 바꿨습니다. 홈페이지를 열어 확인해 보세요.\n(안 바뀌어 보이면 Ctrl+Shift+R 을 눌러 주세요)');
+            }catch(err){
+              alert('저장 공간이 가득 찼습니다.\n바꾼 사진 몇 장을 「원래대로」 되돌리거나,\nassets/img 폴더에서 파일을 직접 바꿔 넣어 주세요.');
+            }
+          };
+          img.onerror = function(){ alert('사진 파일을 읽지 못했습니다. 다른 파일로 해보세요.'); };
+          img.src = e.target.result;
+        };
+        r.readAsDataURL(f);
+      });
+    });
+    document.querySelectorAll('[data-imgreset]').forEach(function(b){
+      b.addEventListener('click', function(){
+        if(!confirm('원래 사진으로 되돌릴까요?')) return;
+        localStorage.removeItem(IK+b.dataset.imgreset);
+        imgDraw();
+      });
+    });
+  }
+  document.getElementById('imgFind').addEventListener('input', imgDraw);
+  document.getElementById('imgOnlyChanged').addEventListener('click', function(){
+    var on = this.dataset.on === '1';
+    this.dataset.on = on ? '0' : '1';
+    this.textContent = on ? '바꾼 것만 보기' : '전부 보기';
+    this.classList.toggle('solid', !on);
+    imgDraw();
+  });
+  imgDraw();
+
+
+  // ── 이벤트 배너 ───────────────────────────────
+  (function(){
+    var T='cms_event_text', L='cms_event_link', O='cms_event_on', S='cms_event_stamp';
+    var tI=document.getElementById('evtText'), lI=document.getElementById('evtLink'), st=document.getElementById('evtState');
+    function draw(){
+      tI.value = localStorage.getItem(T) || '';
+      lI.value = localStorage.getItem(L) || '';
+      var on = localStorage.getItem(O)==='1' && (localStorage.getItem(T)||'').trim();
+      st.innerHTML = on
+        ? '지금 <b>켜져 있습니다</b> — “' + (localStorage.getItem(T)||'') + '”'
+        : '지금 <b>꺼져 있습니다.</b> 문구를 적고 「저장하고 켜기」를 누르면 홈페이지 맨 위에 뜹니다.';
+    }
+    document.getElementById('evtSave').addEventListener('click', function(){
+      var t=tI.value.trim();
+      if(!t){ alert('배너 문구를 적어주세요.'); tI.focus(); return; }
+      localStorage.setItem(T,t);
+      localStorage.setItem(L,lI.value.trim());
+      localStorage.setItem(O,'1');
+      localStorage.setItem(S, String(Date.now()));
+      draw(); alert('배너를 켰습니다. 홈페이지를 열어 확인해 보세요.');
+    });
+    document.getElementById('evtOff').addEventListener('click', function(){
+      localStorage.setItem(O,'0'); draw(); alert('배너를 껐습니다.');
+    });
+    document.getElementById('evtClear').addEventListener('click', function(){
+      if(!confirm('배너 문구를 지울까요?')) return;
+      localStorage.removeItem(T); localStorage.removeItem(L); localStorage.setItem(O,'0');
+      draw();
+    });
+    draw();
+  })();
+
+  // ── 후기 등록 ─────────────────────────────────
+  var RV = 'cms_reviews';
+  function rvGet(){ try{ return JSON.parse(localStorage.getItem(RV) || '[]'); }catch(e){ return []; } }
+  function rvSet(a){ localStorage.setItem(RV, JSON.stringify(a)); rvDraw(); }
+  function esc(s){ return String(s||'').replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function rvDraw(){
+    var a = rvGet(), box = document.getElementById('rvList');
+    document.getElementById('rvNone').hidden = a.length > 0;
+    box.innerHTML = a.map(function(r,i){
+      var on = r.on !== false;
+      return '<div class="row"><b>“' + esc(r.text) + '”</b>' +
+        '<span class="quiet">' + (esc(r.who) || '(쓰신 분 없음)') +
+        (on ? ' <i>· 홈페이지에 보임</i>' : ' · <b style="color:#8C3E24">숨김</b>') + '</span>' +
+        '<button class="mini' + (on ? ' solid' : '') + '" data-show="'+i+'">' + (on ? '보이는 중' : '숨김') + '</button>' +
+        '<button class="mini" data-up="'+i+'" title="위로 올리기">↑</button>' +
+        '<button class="mini" data-edit="'+i+'">고치기</button>' +
+        '<button class="mini danger" data-del="'+i+'">지우기</button></div>';
+    }).join('');
+    box.querySelectorAll('[data-show]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var i=+b.dataset.show, arr=rvGet();
+        arr[i].on = (arr[i].on === false);
+        rvSet(arr);
+      });
+    });
+    box.querySelectorAll('[data-del]').forEach(function(b){
+      b.addEventListener('click', function(){
+        if(!confirm('이 후기를 지울까요?')) return;
+        var a = rvGet(); a.splice(+b.dataset.del,1); rvSet(a);
+      });
+    });
+    box.querySelectorAll('[data-up]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var i=+b.dataset.up; if(i===0) return;
+        var a=rvGet(); var t=a[i-1]; a[i-1]=a[i]; a[i]=t; rvSet(a);
+      });
+    });
+    // 고치기 — 위 입력칸으로 올려놓고, 저장하면 그 자리에 다시 넣는다
+    box.querySelectorAll('[data-edit]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var i=+b.dataset.edit, a=rvGet();
+        document.getElementById('rvText').value = a[i].text;
+        document.getElementById('rvWho').value  = a[i].who || '';
+        rvEditing = i;
+        document.getElementById('rvAdd').textContent = '고친 내용 저장';
+        document.getElementById('rvCancel').hidden = false;
+        document.getElementById('rvText').focus();
+        document.getElementById('rvText').scrollIntoView({block:'center'});
+      });
+    });
+  }
+  var rvEditing = -1;
+  function rvClear(){
+    document.getElementById('rvText').value='';
+    document.getElementById('rvWho').value='';
+    rvEditing = -1;
+    document.getElementById('rvAdd').textContent = '후기 추가';
+    document.getElementById('rvCancel').hidden = true;
+  }
+  document.getElementById('rvAdd').addEventListener('click', function(){
+    var t=document.getElementById('rvText').value.trim();
+    var w=document.getElementById('rvWho').value.trim();
+    if(!t){ alert('후기 내용을 적어주세요.'); return; }
+    var a=rvGet();
+    if (rvEditing >= 0 && a[rvEditing]) { a[rvEditing] = {text:t, who:w, on:(a[rvEditing].on !== false)}; }
+    else { a.push({text:t, who:w, on:true}); }
+    var edited = rvEditing >= 0;
+    rvSet(a); rvClear();
+    alert(edited ? '고쳤습니다.' : '등록했습니다. 메인 「참가자 후기」에서 확인해 보세요.');
+  });
+  document.getElementById('rvCancel').addEventListener('click', rvClear);
+  rvDraw();
+
+  document.getElementById('btnExport').addEventListener('click', function(){
+    var o={};
+    for (var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i);
+      if (k.indexOf('cms_')===0) o[k]=localStorage.getItem(k);
+    }
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:'application/json'}));
+    a.download='율이공방_홈페이지_수정본_백업.json';
+    a.click();
+  });
+
+  document.getElementById('fileImport').addEventListener('change', function(){
+    var f=this.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(e){
+      try{
+        var o=JSON.parse(e.target.result);
+        Object.keys(o).forEach(function(k){ localStorage.setItem(k,o[k]); });
+        alert('백업을 불러왔습니다.');
+      }catch(err){ alert('백업 파일을 읽지 못했습니다.'); }
+    };
+    r.readAsText(f);
+  });
+
+  document.getElementById('btnReset').addEventListener('click', function(){
+    if(!confirm('고치신 내용을 전부 지우고 처음 상태로 되돌립니다. 계속할까요?')) return;
+    var del=[];
+    for (var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i);
+      if (k.indexOf('cms_')===0) del.push(k);
+    }
+    del.forEach(function(k){ localStorage.removeItem(k); });
+    alert('처음 상태로 되돌렸습니다.');
+  });
+})();
+</script>
+</body>
+</html>
