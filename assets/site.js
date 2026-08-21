@@ -182,12 +182,25 @@
     });
   });
 
+  /* ── 내용을 어디서 읽을지 ────────────────────────
+     두 군데에 있다.
+       ① content.js  — 「웹에 반영하기」로 올린 것. 손님에게 보이는 진짜 내용.
+       ② 이 브라우저  — 관리자가 고치는 중인 것. 아직 아무에게도 안 보인다.
+     고치는 중인 게 있으면 그것을, 없으면 반영된 것을 쓴다.
+     그래야 사장님은 고친 결과를 미리 보고, 손님은 반영된 것만 본다. */
+  function cmsGet(key) {
+    var mine = localStorage.getItem(key);
+    if (mine !== null) return mine;
+    var pub = window.CMS_PUBLISHED && window.CMS_PUBLISHED[key];
+    return (pub === undefined || pub === null) ? null : pub;
+  }
+
   /* ── 수업 후기 보여주기 ──────────────────────────
      관리자 페이지에서 등록한 후기를 현장 기록 페이지에 뿌린다. */
   var reviewBox = document.getElementById('reviewList');
   if (reviewBox) {
     var list = [];
-    try { list = JSON.parse(localStorage.getItem('cms_reviews') || '[]'); } catch (e) {}
+    try { list = JSON.parse(cmsGet('cms_reviews') || '[]'); } catch (e) {}
     // 관리자 페이지에서 「보이기」로 둔 후기만 내보낸다
     list = list.filter(function (r) { return r && r.on !== false; });
     var empty = document.getElementById('reviewEmpty');
@@ -252,12 +265,12 @@
      관리자 페이지에서 켜 두면 모든 페이지 맨 위에 한 줄로 떠오릅니다.
      방문자가 닫으면 그 브라우저 창에서는 다시 뜨지 않습니다. */
   (function eventBar(){
-    var on = localStorage.getItem('cms_event_on') === '1';
-    var text = localStorage.getItem('cms_event_text') || '';
+    var on = cmsGet('cms_event_on') === '1';
+    var text = cmsGet('cms_event_text') || '';
     if (!on || !text.trim()) return;
-    var stamp = localStorage.getItem('cms_event_stamp') || '0';
+    var stamp = cmsGet('cms_event_stamp') || '0';
     try { if (sessionStorage.getItem('evt_closed') === stamp) return; } catch (e) {}
-    var link = (localStorage.getItem('cms_event_link') || '').trim();
+    var link = (cmsGet('cms_event_link') || '').trim();
     var bar = document.createElement('div');
     bar.className = 'evt-bar';
     var inner = document.createElement('span');
@@ -314,10 +327,13 @@
   }
 
   document.querySelectorAll('[data-cms]').forEach(function (el) {
-    var v = localStorage.getItem(K + el.dataset.cms);
+    var v = cmsGet(K + el.dataset.cms);
     if (v === null) return;
     var c = cmsClean(v);
-    if (c !== v) localStorage.setItem(K + el.dataset.cms, c);   // 예전에 저장된 것도 이참에 정리
+    // 예전에 내 브라우저에 저장해 둔 것도 이참에 정리한다
+    if (c !== v && localStorage.getItem(K + el.dataset.cms) !== null) {
+      localStorage.setItem(K + el.dataset.cms, c);
+    }
     el.innerHTML = c;
   });
 
@@ -332,7 +348,7 @@
       var key = el.dataset.cmsImg ||
         window.cmsImgKey(el.getAttribute('src') || el.getAttribute('data-src'));
       if (!key) return;
-      var v = localStorage.getItem(K + 'img_' + key);
+      var v = cmsGet(K + 'img_' + key);
       if (!v) return;
       // <picture> 안에서는 <source> 가 우선하므로 걷어내야 바뀐 사진이 보인다
       var pic = el.closest && el.closest('picture');
@@ -343,7 +359,7 @@
     });
     document.querySelectorAll('[data-cms-img]').forEach(function (el) {
       if (el.tagName === 'IMG') return;
-      var v = localStorage.getItem(K + 'img_' + el.dataset.cmsImg);
+      var v = cmsGet(K + 'img_' + el.dataset.cmsImg);
       if (v) el.style.backgroundImage = "url('" + v + "')";
     });
   }
