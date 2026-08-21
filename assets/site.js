@@ -289,9 +289,36 @@
 
   /* ── 관리자 수정 내용 ────────────────────────────── */
   var K = 'cms_';
+
+  /* 붙여넣기로 딸려 들어온 서식을 걷어낸다.
+     한글·워드·다른 홈페이지에서 글을 복사해 붙이면 글자 굵기·색·글꼴이
+     <span style="font-weight:700"> 같은 모양으로 같이 따라온다.
+     그대로 두면 그 칸만 유독 두껍거나 글꼴이 달라 보인다.
+     원래 문서에 있던 <strong> 강조는 살리고, 따라온 서식만 지운다. */
+  var CMS_OK = { STRONG:1, B:1, EM:1, I:1, BR:1, A:1, SMALL:1, CODE:1 };
+  function cmsClean(html) {
+    var box = document.createElement('div');
+    box.innerHTML = String(html);
+    box.querySelectorAll('*').forEach(function (e) {
+      if (!CMS_OK[e.tagName]) {                    // 허용 밖 태그는 껍데기만 벗긴다
+        while (e.firstChild) e.parentNode.insertBefore(e.firstChild, e);
+        e.remove();
+        return;
+      }
+      [].slice.call(e.attributes).forEach(function (a) {
+        var keep = (e.tagName === 'A') && /^(href|target|rel)$/i.test(a.name);
+        if (!keep) e.removeAttribute(a.name);      // style·class·font 색·크기 전부 제거
+      });
+    });
+    return box.innerHTML;
+  }
+
   document.querySelectorAll('[data-cms]').forEach(function (el) {
     var v = localStorage.getItem(K + el.dataset.cms);
-    if (v !== null) el.innerHTML = v;
+    if (v === null) return;
+    var c = cmsClean(v);
+    if (c !== v) localStorage.setItem(K + el.dataset.cms, c);   // 예전에 저장된 것도 이참에 정리
+    el.innerHTML = c;
   });
 
   // 사진은 파일 이름을 열쇠로 쓴다. 그래야 페이지마다 표시를 달지 않아도
@@ -339,6 +366,7 @@
   // 접혀 있는 질문은 전부 펴 둔다. 접힌 채로는 답을 고칠 수가 없고,
   // 글자를 고치는 상태에서는 제목을 눌러도 잘 펴지지 않는다.
   document.querySelectorAll('details').forEach(function (d) { d.open = true; });
+  var lastEl = null;   // 마지막으로 손댄 칸 — 아래 「굵게 지우기」가 쓴다
   document.querySelectorAll('[data-cms]').forEach(function (el) {
     el.contentEditable = true;
     el.spellcheck = false;
@@ -347,8 +375,10 @@
        바깥을 누르지 않은 채 다른 페이지로 넘어가면 고친 게 날아가기 때문이다. */
     var was = el.innerHTML, hold = null;
     function save() {
-      if (el.innerHTML === was) return;
-      was = el.innerHTML;
+      var now = cmsClean(el.innerHTML);
+      if (now !== el.innerHTML) el.innerHTML = now;   // 따라 들어온 서식을 그 자리에서 걷어낸다
+      if (now === was) return;
+      was = now;
       localStorage.setItem(K + el.dataset.cms, was);
       el.classList.add('cms-hit', 'cms-just');
       setTimeout(function () { el.classList.remove('cms-just'); }, 1400);
@@ -359,7 +389,26 @@
       hold = setTimeout(save, 400);   // 타자를 잠깐 멈추면 저장
     });
     el.addEventListener('blur', function () { clearTimeout(hold); save(); });
+    el.addEventListener('focus', function () { lastEl = el; });
+
+    /* 붙여넣기 — 서식은 버리고 글자만 넣는다.
+       (사장님이 Ctrl+Shift+V 를 기억하지 않아도 되게 한다) */
+    function plain(e, txt) {
+      e.preventDefault();
+      var s = String(txt || '');
+      document.execCommand('insertText', false, s);
+      clearTimeout(hold); hold = setTimeout(save, 200);
+    }
+    el.addEventListener('paste', function (e) {
+      plain(e, (e.clipboardData || window.clipboardData).getData('text/plain'));
+    });
+    el.addEventListener('drop', function (e) {
+      plain(e, e.dataTransfer && e.dataTransfer.getData('text/plain'));
+    });
+
     el.addEventListener('keydown', function (e) {
+      // Ctrl(⌘)+B·I·U 로 굵게·기울임이 걸리면 그 칸만 튄다. 아예 막는다.
+      if ((e.ctrlKey || e.metaKey) && /^[biu]$/i.test(e.key)) { e.preventDefault(); return; }
       // 문단 안에서 엔터를 치면 이상한 상자가 생기므로 줄바꿈으로 바꿔 준다
       if (e.key === 'Enter' && !e.shiftKey && el.tagName !== 'DIV') {
         e.preventDefault();
@@ -380,6 +429,7 @@
   bar.innerHTML =
     '<span><b>편집 중</b> — 글을 눌러 고치면 <b>저절로 저장</b>됩니다. 노란 테두리가 고친 자리입니다.</span>' +
     '<span id="cmsCount" class="cms-n"></span>' +
+    '<button type="button" id="cmsUnbold">굵게 지우기</button>' +
     '<button type="button" id="cmsUndo">이 페이지만 되돌리기</button>' +
     '<button type="button" id="cmsDone" class="on">편집 끝내기</button>';
   document.body.appendChild(bar);
@@ -387,6 +437,26 @@
   document.getElementById('cmsDone').addEventListener('click', function () {
     location.href = 'admin.html';
   });
+  /* 이미 두껍게 굳어버린 칸을 되돌린다.
+     붙여넣기로 들어온 서식은 저장할 때 저절로 걷히지만,
+     Ctrl+B 나 폰의 서식 도구로 걸린 <strong> 은 원래 문서에도 쓰이는 태그라
+     기계가 함부로 지울 수 없다. 그래서 사장님이 직접 누르는 단추를 둔다. */
+  document.getElementById('cmsUnbold').addEventListener('click', function () {
+    var el = lastEl;
+    if (!el) { alert('먼저 두껍게 된 글을 한 번 눌러 주세요. 그 다음 이 단추를 누르시면 됩니다.'); return; }
+    var box = document.createElement('div');
+    box.innerHTML = el.innerHTML;
+    box.querySelectorAll('strong,b,em,i,u').forEach(function (e) {
+      while (e.firstChild) e.parentNode.insertBefore(e.firstChild, e);
+      e.remove();
+    });
+    if (box.innerHTML === el.innerHTML) { alert('이 칸에는 굵게 표시가 없습니다.'); return; }
+    el.innerHTML = box.innerHTML;
+    localStorage.setItem(K + el.dataset.cms, el.innerHTML);
+    el.classList.add('cms-hit', 'cms-just');
+    setTimeout(function () { el.classList.remove('cms-just'); }, 1400);
+  });
+
   document.getElementById('cmsUndo').addEventListener('click', function () {
     if (!confirm('이 페이지에서 고친 글을 모두 처음 상태로 되돌립니다. 계속할까요?')) return;
     document.querySelectorAll('[data-cms]').forEach(function (el) {
