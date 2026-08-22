@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>율이공방 홈페이지 고치는 법</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+
+<style>
+:root{
+  --paper:#FAF8F3;
+  --card:#FFFFFF;
+  --sand:#F1EFE6;
+  --ink:#202B20;
+  --body:#3E4838;
+  --soft:#6B7563;
+  --sage:#4E6146;
+  --sage-deep:#35452F;
+  --sage-pale:#E3EADC;
+  --clay:#8B5A2B;
+  --clay-pale:#F6EDE2;
+  --line:#E4E0D3;
+  --line-soft:#EFEDE3;
+
+  --h1:clamp(1.75rem,6.5vw,2.6rem);
+  --h2:clamp(1.22rem,4.6vw,1.55rem);
+  --big:clamp(1.05rem,3.9vw,1.2rem);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#15180F;
+    --card:#1D2118;
+    --sand:#252A1E;
+    --ink:#EDF0E4;
+    --body:#C7CEBB;
+    --soft:#98A18C;
+    --sage:#A8C098;
+    --sage-deep:#C3D6B6;
+    --sage-pale:#2C3626;
+    --clay:#D6A472;
+    --clay-pale:#33291C;
+    --line:#2F3628;
+    --line-soft:#262C20;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#15180F;
+  --card:#1D2118;
+  --sand:#252A1E;
+  --ink:#EDF0E4;
+  --body:#C7CEBB;
+  --soft:#98A18C;
+  --sage:#A8C098;
+  --sage-deep:#C3D6B6;
+  --sage-pale:#2C3626;
+  --clay:#D6A472;
+  --clay-pale:#33291C;
+  --line:#2F3628;
+  --line-soft:#262C20;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--body);
+  font-family:'Noto Sans KR',system-ui,-apple-system,'Malgun Gothic',sans-serif;
+  font-size:17px;
+  line-height:1.9;
+  letter-spacing:-.01em;
+  word-break:keep-all;
+  overflow-wrap:break-word;
+}
+.wrap{ max-width:40rem; margin:0 auto; padding:clamp(2rem,7vw,3.5rem) clamp(1.1rem,5vw,2rem) 4rem; }
+
+h1,h2,h3{ font-family:'Noto Serif KR',serif; color:var(--ink); margin:0; text-wrap:balance; font-weight:600; }
+p{ margin:0; }
+
+/* ── 머리 ─────────────────────────── */
+.hello{ margin-bottom:2.6rem; }
+.hello .tag{
+  display:inline-block; font-size:.78rem; font-weight:700; letter-spacing:.1em;
+  color:var(--sage); background:var(--sage-pale);
+  padding:.3rem .8rem; border-radius:99px; margin-bottom:1.1rem;
+}
+h1{ font-size:var(--h1); line-height:1.35; letter-spacing:-.025em; }
+.hello p{ margin-top:1rem; font-size:var(--big); color:var(--soft); }
+
+/* ── 딱 세 가지 ───────────────────── */
+.three{
+  background:var(--sage-deep); color:#F2F5EE;
+  border-radius:18px; padding:clamp(1.4rem,5vw,2rem);
+  margin-bottom:2.8rem;
+}
+:root:not([data-theme="light"]) .three,
+:root[data-theme="dark"] .three{ background:var(--sage-pale); color:var(--ink); }
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .three{ background:var(--sage-pale); color:var(--ink); }
+}
+.three h2{ color:inherit; font-size:var(--h2); margin-bottom:1.1rem; }
+.three dl{ margin:0; display:flex; flex-direction:column; gap:.9rem; }
+.three .row{ display:flex; gap:.9rem; align-items:baseline; }
+.three dt{ flex:none; width:4.2rem; font-size:.85rem; opacity:.75; }
+.three dd{ margin:0; font-weight:700; font-size:var(--big); }
+.three .small{ font-weight:400; font-size:.92rem; opacity:.8; display:block; margin-top:.15rem; }
+
+/* ── 일 카드 ──────────────────────── */
+.job{
+  background:var(--card); border:1px solid var(--line);
+  border-radius:16px; padding:clamp(1.25rem,4.5vw,1.7rem);
+  margin-bottom:1.1rem;
+}
+.job h2{ font-size:var(--h2); margin-bottom:.55rem; display:flex; gap:.6rem; align-items:baseline; }
+.job h2 .em{ font-size:1.15em; line-height:1; }
+.job > p{ color:var(--soft); font-size:.96rem; margin-bottom:1rem; }
+.job.star{ border-color:var(--sage); border-width:2px; background:var(--sand); }
+
+ol.steps{ margin:0; padding:0; list-style:none; counter-reset:s; display:flex; flex-direction:column; gap:.7rem; }
+ol.steps li{ counter-increment:s; padding-left:2.1rem; position:relative; }
+ol.steps li::before{
+  content:counter(s); position:absolute; left:0; top:.28em;
+  width:1.5rem; height:1.5rem; border-radius:50%;
+  background:var(--sage-pale); color:var(--sage);
+  font-size:.8rem; font-weight:700; line-height:1.5rem; text-align:center;
+  font-family:'Noto Sans KR',sans-serif;
+}
+ol.steps b{ color:var(--ink); }
+
+ul.plain{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:.6rem; }
+ul.plain li{ padding-left:1.25rem; position:relative; }
+ul.plain li::before{
+  content:''; position:absolute; left:.1rem; top:.85em;
+  width:.4rem; height:.4rem; border-radius:50%; background:var(--sage);
+}
+ul.plain b{ color:var(--ink); }
+
+.key{
+  display:inline-block; font-weight:700; color:var(--sage-deep);
+  background:var(--sage-pale); padding:.1rem .45rem; border-radius:6px;
+  letter-spacing:.02em;
+}
+:root:not([data-theme="light"]) .key,
+:root[data-theme="dark"] .key{ color:var(--sage-deep); }
+
+.tip{
+  margin-top:1.1rem; background:var(--clay-pale); border-radius:12px;
+  padding:.85rem 1rem; font-size:.92rem; color:var(--ink);
+}
+.tip b{ color:var(--clay); }
+
+/* ── 마무리 ───────────────────────── */
+.last{ margin-top:2.4rem; border-top:2px solid var(--ink); padding-top:1.8rem; }
+.last h2{ font-size:var(--h2); margin-bottom:1.1rem; }
+.last .note{ font-size:.95rem; color:var(--soft); margin-top:1.4rem; }
+
+footer{ margin-top:2.6rem; padding-top:1.2rem; border-top:1px solid var(--line-soft);
+        font-size:.85rem; color:var(--soft); text-align:center; }
+
+@media (prefers-reduced-motion:reduce){ *{ transition:none!important; animation:none!important; } }
+</style>
+
+<div class="wrap">
+
+  <header class="hello">
+    <span class="tag">율이공방 대표님께</span>
+    <h1>이제 홈페이지 글을<br>직접 고치실 수 있습니다.</h1>
+    <p>컴퓨터를 잘 몰라도 괜찮습니다. 글을 눌러서 고치고, 단추 하나 누르면 끝입니다.</p>
+  </header>
+
+  <section class="three">
+    <h2>딱 세 가지만 기억하세요</h2>
+    <dl>
+      <div class="row">
+        <dt>들어가는 곳</dt>
+        <dd>www.yulatelier.com/admin.html
+          <span class="small">홈페이지 주소 뒤에 <b>/admin.html</b> 을 붙이면 됩니다</span></dd>
+      </div>
+      <div class="row">
+        <dt>비밀번호</dt>
+        <dd>0497</dd>
+      </div>
+      <div class="row">
+        <dt>마지막에</dt>
+        <dd>「웹에 반영하기」
+          <span class="small">이걸 눌러야 손님 화면에도 보입니다</span></dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="job">
+    <h2><span class="em">📱</span>들어가기</h2>
+    <p>휴대폰으로도 되고 컴퓨터로도 됩니다.</p>
+    <ol class="steps">
+      <li>인터넷 주소창에 <b>www.yulatelier.com/admin.html</b> 을 칩니다.</li>
+      <li>비밀번호 <span class="key">0497</span> 을 넣고 <b>들어가기</b>.</li>
+    </ol>
+    <div class="tip"><b>편하게 쓰시려면</b> — 휴대폰에서 이 화면을 열고 「홈 화면에 추가」를 해두시면,
+      다음부터는 앱처럼 눌러서 바로 들어가실 수 있습니다.</div>
+  </section>
+
+  <section class="job">
+    <h2><span class="em">✏️</span>글 고치기</h2>
+    <p>제목, 소개글, 표 안의 글자까지 거의 모든 글을 고치실 수 있습니다.</p>
+    <ol class="steps">
+      <li><b>「글 고치기」</b> 칸에서 고치고 싶은 페이지의 <b>「고치기」</b>를 누릅니다.</li>
+      <li>홈페이지가 열립니다. <b>고칠 글을 손가락으로 톡 누르면</b> 바로 고칠 수 있습니다.</li>
+      <li>고치면 <b>저절로 저장</b>됩니다. 따로 저장 단추를 누르지 않으셔도 됩니다.</li>
+      <li>다 하셨으면 화면 맨 아래 <b>「편집 끝내기」</b>를 누릅니다.</li>
+    </ol>
+    <div class="tip"><b>노란 테두리</b>가 생긴 자리가 대표님이 고치신 곳입니다.
+      어디를 손댔는지 한눈에 보실 수 있습니다.</div>
+  </section>
+
+  <section class="job">
+    <h2><span class="em">🖼️</span>사진 바꾸기</h2>
+    <p>홈페이지에 있는 사진을 대표님 사진으로 바꾸실 수 있습니다.</p>
+    <ol class="steps">
+      <li><b>「사진 바꾸기」</b> 칸에서 바꾸고 싶은 사진을 찾습니다. 위쪽 칸에 <b>「조향」</b>처럼 적으면 빨리 찾습니다.</li>
+      <li><b>「사진 고르기」</b>를 눌러 새 사진을 고릅니다.</li>
+    </ol>
+    <div class="tip"><b>사진 모양을 맞춰 주세요</b> — 가로로 넓은 사진 자리에는 가로 사진을,
+      세로로 긴 자리에는 세로 사진을 넣으셔야 잘리지 않고 예쁘게 들어갑니다.<br>
+      사진을 여러 장 한꺼번에 바꾸실 때는 시간이 좀 걸립니다.</div>
+  </section>
+
+  <section class="job">
+    <h2><span class="em">⭐</span>후기 넣기</h2>
+    <p>등록하시면 메인 화면 「참가자 후기」 자리에 바로 나타납니다.</p>
+    <ol class="steps">
+      <li><b>「후기 등록」</b> 칸에 내용과 쓰신 분을 적습니다.</li>
+      <li><b>「후기 추가」</b>를 누릅니다.</li>
+      <li>등록한 후기는 <b>「보이기 / 숨기기」</b>로 내보낼 것만 고르실 수 있습니다.</li>
+    </ol>
+    <div class="tip"><b>담당자 후기가 훨씬 힘이 셉니다.</b>
+      "○○복지관 담당자" 처럼 기관 담당자분 이야기가 참여자 후기보다 문의로 잘 이어집니다.</div>
+  </section>
+
+  <section class="job">
+    <h2><span class="em">📢</span>이벤트 띠 띄우기</h2>
+    <p>홈페이지 맨 위에 한 줄 안내를 띄울 수 있습니다. 접수 기간에만 켜 두시면 좋습니다.</p>
+    <ol class="steps">
+      <li><b>「이벤트 배너」</b> 칸에 문구를 적습니다.
+        <br><span style="color:var(--soft);font-size:.92rem">예) 9월 힐링데이 예약 접수 중 — 10인 이상 재료비 할인</span></li>
+      <li><b>「저장하고 켜기」</b>를 누릅니다.</li>
+      <li>끝나면 <b>「끄기」</b>를 눌러 내려 주세요.</li>
+    </ol>
+  </section>
+
+  <section class="job star">
+    <h2><span class="em">🌐</span>웹에 반영하기 — 가장 중요합니다</h2>
+    <p>여기까지 고치신 것은 <b>대표님 화면에만</b> 보입니다. 이 단추를 눌러야 손님에게도 보입니다.</p>
+    <ol class="steps">
+      <li>관리자 화면 <b>맨 위</b>의 <b>「웹에 반영하기」</b>를 누릅니다.</li>
+      <li>비밀번호 <span class="key">0497</span> 을 한 번 더 넣습니다.</li>
+      <li><b>「반영했습니다」</b>가 뜨면 끝입니다.</li>
+      <li><b>1~2분</b> 뒤 홈페이지를 새로고침하면 바뀐 내용이 보입니다.</li>
+    </ol>
+    <div class="tip"><b>마음껏 고쳐 보셔도 됩니다.</b> 반영을 누르기 전까지는
+      아무에게도 보이지 않습니다. 마음에 드실 때 누르시면 됩니다.</div>
+  </section>
+
+  <section class="job">
+    <h2><span class="em">↩️</span>잘못 고쳤을 때</h2>
+    <ul class="plain">
+      <li><b>글씨가 두꺼워졌어요</b> — 다른 데서 글을 복사해 붙이면 가끔 그렇습니다.
+        그 글을 한 번 누르고, 화면 맨 아래 <b>「굵게 지우기」</b>를 누르세요.</li>
+      <li><b>이 페이지를 처음으로 되돌리고 싶어요</b> — 편집 화면 맨 아래
+        <b>「이 페이지만 되돌리기」</b>.</li>
+      <li><b>전부 되돌리고 싶어요</b> — 관리자 화면 아래 <b>「백업 · 되돌리기」</b>.
+        큰 수정을 하시기 전에 <b>「백업 파일 내려받기」</b>를 먼저 받아 두시면 안심입니다.</li>
+    </ul>
+  </section>
+
+  <section class="last">
+    <h2>이것만은 기억해 주세요</h2>
+    <ul class="plain">
+      <li><b>고친 뒤에는 꼭 「웹에 반영하기」.</b> 이걸 안 누르면 손님 화면은 그대로입니다.</li>
+      <li><b>비밀번호는 알려주지 마세요.</b> 주소만 알면 누구나 로그인 화면까지는 들어옵니다.
+        바꾸시려면 <b>「비밀번호 바꾸기」</b>에서 바꾸실 수 있습니다.</li>
+      <li><b>메뉴와 아래쪽 연락처</b>는 여기서 못 고칩니다. 그 부분은 말씀해 주시면 고쳐 드립니다.</li>
+    </ul>
+    <p class="note">해보시다가 막히시거나 이상하면 <b>그 화면을 그대로 캡처해서</b> 보내 주세요.
+      뭘 잘못 누르셔도 홈페이지는 망가지지 않습니다. 편하게 만져 보셔도 됩니다.</p>
+  </section>
+
+
+  <p style="text-align:center;margin-top:2rem">
+    <a href="admin.html" style="display:inline-block;padding:.9rem 1.8rem;border-radius:99px;
+       background:var(--sage-deep);color:#F2F5EE;text-decoration:none;font-weight:700;font-size:1rem">
+      관리자 화면으로 가기 &rarr;</a>
+  </p>
+
+  <footer>율이공방 · www.yulatelier.com</footer>
+</div>
+
+</body>
+</html>
